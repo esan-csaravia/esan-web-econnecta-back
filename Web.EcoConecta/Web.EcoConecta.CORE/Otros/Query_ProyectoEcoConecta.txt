@@ -1,0 +1,174 @@
+-- ===============================================
+--   CREAR BASE DE DATOS
+-- ===============================================
+
+CREATE DATABASE EcoConectaDB;
+GO
+
+USE EcoConectaDB;
+GO
+
+-- ===============================================
+--   TABLA: Usuarios
+-- ===============================================
+
+CREATE TABLE Usuarios (
+    id_usuario INT IDENTITY(1,1) PRIMARY KEY,
+    nombre NVARCHAR(100) NOT NULL,
+    apellido NVARCHAR(100) NULL,
+    correo NVARCHAR(120) NOT NULL UNIQUE,
+    distrito NVARCHAR(80),
+    contrasena NVARCHAR(255) NOT NULL,
+    rol VARCHAR(20) CHECK (rol IN ('ciudadano','administrador')) DEFAULT 'ciudadano',
+    fecha_registro DATETIME DEFAULT GETDATE(),
+    activo BIT DEFAULT 1
+);
+GO
+
+-- ===============================================
+--   TABLA: Categorias
+-- ===============================================
+
+CREATE TABLE Categorias (
+    id_categoria INT IDENTITY(1,1) PRIMARY KEY,
+    nombre NVARCHAR(100) NOT NULL
+);
+GO
+
+-- ===============================================
+--   TABLA: Publicaciones
+-- ===============================================
+
+CREATE TABLE Publicaciones (
+    id_publicacion INT IDENTITY(1,1) PRIMARY KEY,
+    id_usuario INT NOT NULL,
+    titulo NVARCHAR(150) NOT NULL,
+    descripcion NVARCHAR(MAX) NOT NULL,
+    precio DECIMAL(10,2),
+    id_categoria INT NOT NULL,
+    estado_publicacion VARCHAR(20) 
+        CHECK (estado_publicacion IN ('pendiente','aprobada','rechazada')) 
+        DEFAULT 'pendiente',
+    motivo_rechazo NVARCHAR(MAX),
+    fecha_creacion DATETIME DEFAULT GETDATE(),
+
+    FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario),
+    FOREIGN KEY (id_categoria) REFERENCES Categorias(id_categoria)
+);
+GO
+
+-- ===============================================
+--   TABLA: ImagenesPublicacion
+-- ===============================================
+
+CREATE TABLE ImagenesPublicacion (
+    id_imagen INT IDENTITY(1,1) PRIMARY KEY,
+    id_publicacion INT NOT NULL,
+    ruta_imagen NVARCHAR(255) NOT NULL,
+
+    FOREIGN KEY (id_publicacion) REFERENCES Publicaciones(id_publicacion)
+);
+GO
+
+-- ===============================================
+--   TABLA: Transacciones
+-- ===============================================
+
+CREATE TABLE Transacciones (
+    id_transaccion INT IDENTITY(1,1) PRIMARY KEY,
+    id_publicacion INT NOT NULL,
+    id_comprador INT NOT NULL,
+    id_vendedor INT NOT NULL,
+    tipo VARCHAR(20) CHECK (tipo IN ('compra','donacion')) NOT NULL,
+    fecha DATETIME DEFAULT GETDATE(),
+
+    FOREIGN KEY (id_publicacion) REFERENCES Publicaciones(id_publicacion),
+    FOREIGN KEY (id_comprador) REFERENCES Usuarios(id_usuario),
+    FOREIGN KEY (id_vendedor) REFERENCES Usuarios(id_usuario)
+);
+GO
+
+-- ===============================================
+--   TABLA: Notificaciones
+-- ===============================================
+
+CREATE TABLE Notificaciones (
+    id_notificacion INT IDENTITY(1,1) PRIMARY KEY,
+    id_usuario INT NOT NULL,
+    id_publicacion INT NOT NULL,
+    mensaje NVARCHAR(255),
+    leido BIT DEFAULT 0,
+    fecha DATETIME DEFAULT GETDATE(),
+
+    FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario),
+    FOREIGN KEY (id_publicacion) REFERENCES Publicaciones(id_publicacion)
+);
+GO
+
+-- ===============================================
+--   TABLA: Comentarios
+-- ===============================================
+
+CREATE TABLE Comentarios (
+    id_comentario INT IDENTITY(1,1) PRIMARY KEY,
+    id_publicacion INT NOT NULL,
+    id_usuario INT NOT NULL,
+    comentario NVARCHAR(200) NOT NULL,
+    fecha DATETIME DEFAULT GETDATE(),
+
+    FOREIGN KEY (id_publicacion) REFERENCES Publicaciones(id_publicacion),
+    FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario)
+);
+GO
+
+-- ===============================================
+--   TABLA: Calificaciones
+-- ===============================================
+
+CREATE TABLE Calificaciones (
+    id_calificacion INT IDENTITY(1,1) PRIMARY KEY,
+    id_transaccion INT NOT NULL UNIQUE,
+    id_calificador INT NOT NULL,
+    id_vendedor INT NOT NULL,
+    puntuacion INT CHECK (puntuacion BETWEEN 1 AND 5),
+    comentario NVARCHAR(500),
+    fecha DATETIME DEFAULT GETDATE(),
+
+    FOREIGN KEY (id_transaccion) REFERENCES Transacciones(id_transaccion),
+    FOREIGN KEY (id_calificador) REFERENCES Usuarios(id_usuario),
+    FOREIGN KEY (id_vendedor) REFERENCES Usuarios(id_usuario)
+);
+GO
+
+-- ===============================================
+--   TABLA: CampanasReciclaje
+-- ===============================================
+
+CREATE TABLE CampanasReciclaje (
+    id_campana INT IDENTITY(1,1) PRIMARY KEY,
+    id_admin INT NOT NULL,
+    titulo NVARCHAR(150) NOT NULL,
+    descripcion NVARCHAR(MAX) NOT NULL,
+    imagen NVARCHAR(255),
+    fecha_campana DATE NOT NULL,
+    fecha_publicacion DATETIME DEFAULT GETDATE(),
+
+    FOREIGN KEY (id_admin) REFERENCES Usuarios(id_usuario)
+);
+GO
+
+-- ===============================================
+--   TABLA: BloqueosUsuarios
+-- ===============================================
+
+CREATE TABLE BloqueosUsuarios (
+    id_bloqueo INT IDENTITY(1,1) PRIMARY KEY,
+    id_usuario INT NOT NULL,
+    id_admin INT NOT NULL,
+    motivo NVARCHAR(MAX) NOT NULL,
+    fecha DATETIME DEFAULT GETDATE(),
+
+    FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario),
+    FOREIGN KEY (id_admin) REFERENCES Usuarios(id_usuario)
+);
+GO
