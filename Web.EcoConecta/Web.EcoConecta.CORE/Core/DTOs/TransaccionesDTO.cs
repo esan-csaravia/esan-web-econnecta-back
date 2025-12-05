@@ -25,5 +25,15 @@ namespace Web.EcoConecta.CORE.Core.DTOs
             public string Tipo { get; set; }
             public DateTime? Fecha { get; set; }
         }
+
+        public class HistorialDTO
+        {
+            public int IdTransaccion { get; set; }
+            public string Titulo { get; set; }
+            public decimal Precio { get; set; }
+            public string Tipo { get; set; }
+            public DateTime Fecha { get; set; }
+        }
+
     }
 }

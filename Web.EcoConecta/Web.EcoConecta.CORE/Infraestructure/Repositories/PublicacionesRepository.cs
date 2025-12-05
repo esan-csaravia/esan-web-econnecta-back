@@ -59,5 +59,38 @@ namespace Web.EcoConecta.CORE.Infraestructure.Repositories
             if (!string.IsNullOrWhiteSpace(distrito)) query = query.Where(p => p.IdUsuarioNavigation.Distrito == distrito);
             return await query.Include(p => p.ImagenesPublicacion).ToListAsync();
         }
+
+        public async Task<IEnumerable<Publicaciones>> BuscarAprobadas(string? titulo, int? categoria, string? distrito)
+        {
+            var query = _context.Publicaciones
+                .Where(p => p.EstadoPublicacion == "aprobada")
+                .Include(p => p.ImagenesPublicacion)
+                .Include(p => p.IdUsuarioNavigation)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(titulo))
+                query = query.Where(p => p.Titulo.Contains(titulo));
+
+            if (categoria.HasValue)
+                query = query.Where(p => p.IdCategoria == categoria.Value);
+
+            if (!string.IsNullOrWhiteSpace(distrito))
+                query = query.Where(p => p.IdUsuarioNavigation.Distrito == distrito);
+
+            return await query.ToListAsync();
+        }
+
+        public async Task<Publicaciones> GetDetalle(int id)
+        {
+            return await _context.Publicaciones
+                .Include(p => p.ImagenesPublicacion)
+                .Include(p => p.IdUsuarioNavigation)
+                .Include(p => p.Comentarios).ThenInclude(c => c.IdUsuarioNavigation)
+                .Include(p => p.IdCategoriaNavigation)
+                .FirstOrDefaultAsync(p => p.IdPublicacion == id);
+        }
+
+
     }
+
 }

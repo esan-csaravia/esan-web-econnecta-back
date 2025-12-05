@@ -22,5 +22,25 @@ namespace Web.EcoConecta.API.Controllers
             if (id == 0) return BadRequest();
             return Ok(id);
         }
+
+        [HttpGet("vendedor/{idVendedor}")]
+        public async Task<IActionResult> GetCalificacionesVendedor(int idVendedor)
+        {
+            var result = await _service.GetCalificacionesVendedorAsync(idVendedor);
+
+            if (result == null)
+                return NotFound();
+
+            return Ok(result);
+        }
+
+        [HttpGet("lista/{idVendedor}")]
+        public async Task<IActionResult> Lista(int idVendedor)
+        {
+            var result = await _service.GetListaCalificacionesAsync(idVendedor);
+            return Ok(result);
+        }
+
+
     }
 }

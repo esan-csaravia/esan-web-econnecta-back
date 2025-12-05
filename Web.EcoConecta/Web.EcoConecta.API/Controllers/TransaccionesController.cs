@@ -29,5 +29,17 @@ namespace Web.EcoConecta.API.Controllers
             var res = await _service.GetHistorialAsync(idUsuario);
             return Ok(res);
         }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetDetalle(int id)
+        {
+            var detalle = await _service.GetDetalleCompraAsync(id);
+            if (detalle == null) return NotFound();
+
+            return Ok(detalle);
+        }
+
+
+
     }
 }

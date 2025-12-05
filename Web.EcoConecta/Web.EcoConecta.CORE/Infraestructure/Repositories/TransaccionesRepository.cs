@@ -32,5 +32,15 @@ namespace Web.EcoConecta.CORE.Infraestructure.Repositories
         {
             return await _context.Transacciones.Include(t => t.IdPublicacionNavigation).FirstOrDefaultAsync(t => t.IdTransaccion == id);
         }
+
+        public async Task<Transacciones?> GetByIdDetalle(int id)
+        {
+            return await _context.Transacciones
+                .Include(t => t.IdVendedorNavigation)
+                .Include(t => t.IdPublicacionNavigation)
+                .ThenInclude(p => p.ImagenesPublicacion)
+                .FirstOrDefaultAsync(t => t.IdTransaccion == id);
+        }
+
     }
 }

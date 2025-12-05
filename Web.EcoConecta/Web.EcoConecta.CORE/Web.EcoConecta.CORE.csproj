@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <Folder Include="Core\Settings\" />
-    <Folder Include="Infraestructure\Datas\" />
     <Folder Include="Infraestructure\Shared\" />
   </ItemGroup>
 

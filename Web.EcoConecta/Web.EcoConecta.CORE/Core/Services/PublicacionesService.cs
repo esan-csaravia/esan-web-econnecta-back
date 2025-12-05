@@ -91,5 +91,63 @@ namespace Web.EcoConecta.CORE.Core.Services
             pub.MotivoRechazo = dto.MotivoRechazo;
             return await _repo.Actualizar(pub);
         }
+
+        public async Task<IEnumerable<PublicacionesDTO.PublicacionListDTO>> BuscarAprobadasAsync(string? titulo, int? categoria, string? distrito)
+        {
+            var pubs = await _repo.BuscarAprobadas(titulo, categoria, distrito);
+
+            return pubs.Select(p => new PublicacionesDTO.PublicacionListDTO
+            {
+                IdPublicacion = p.IdPublicacion,
+                Titulo = p.Titulo,
+                Descripcion = p.Descripcion,
+                Precio = p.Precio,
+                EstadoPublicacion = p.EstadoPublicacion,
+                IdUsuario = p.IdUsuario,
+                IdCategoria = p.IdCategoria,
+                Imagenes = p.ImagenesPublicacion.Select(i => i.RutaImagen).ToList(),
+
+                // NUEVO
+                NombreUsuario = p.IdUsuarioNavigation.Nombre + " " + p.IdUsuarioNavigation.Apellido,
+                Distrito = p.IdUsuarioNavigation.Distrito
+            });
+        }
+
+        public async Task<PublicacionesDTO.PublicacionDetalleDTO?> GetDetalleAsync(int id)
+        {
+            var p = await _repo.GetDetalle(id);
+            if (p == null) return null;
+
+            return new PublicacionesDTO.PublicacionDetalleDTO
+            {
+                IdPublicacion = p.IdPublicacion,
+                Titulo = p.Titulo,
+                Descripcion = p.Descripcion,
+                Precio = p.Precio,
+                Categoria = p.IdCategoriaNavigation?.Nombre,
+                FechaCreacion = p.FechaCreacion ?? DateTime.MinValue,
+                Imagenes = p.ImagenesPublicacion.Select(i => i.RutaImagen).ToList(),
+
+                Vendedor = new PublicacionesDTO.PublicacionDetalleDTO.VendedorDTO
+                {
+                    IdUsuario = p.IdUsuarioNavigation.IdUsuario,
+                    Nombre = p.IdUsuarioNavigation.Nombre,
+                    Apellido = p.IdUsuarioNavigation.Apellido,
+                    Correo = p.IdUsuarioNavigation.Correo,
+                    Distrito = p.IdUsuarioNavigation.Distrito,
+                    FechaRegistro = p.IdUsuarioNavigation.FechaRegistro ?? DateTime.MinValue
+                },
+
+                Comentarios = p.Comentarios.Select(c => new PublicacionesDTO.PublicacionDetalleDTO.ComentarioDTO
+                {
+                    IdComentario = c.IdComentario,
+                    Usuario = c.IdUsuarioNavigation.Nombre + " " + c.IdUsuarioNavigation.Apellido,
+                    Mensaje = c.Comentario,
+                    Fecha = c.Fecha ?? DateTime.MinValue
+                }).ToList()
+            };
+        }
+
+
     }
 }

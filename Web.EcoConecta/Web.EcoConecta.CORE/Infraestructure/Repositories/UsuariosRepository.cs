@@ -1,9 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Web.EcoConecta.CORE.Core.Entities;
 using Web.EcoConecta.CORE.Core.Interfaces;
 using Web.EcoConecta.CORE.Infraestructure.Data;
@@ -62,5 +57,11 @@ namespace Web.EcoConecta.CORE.Infraestructure.Repositories
             return await _context.Usuarios
                 .FirstOrDefaultAsync(u => u.Correo == correo && u.Contrasena == contrasena);
         }
+
+        public IQueryable<Usuarios> GetAll()
+        {
+            return _context.Usuarios.AsQueryable();
+        }
+
     }
 }

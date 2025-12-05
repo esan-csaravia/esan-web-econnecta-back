@@ -44,5 +44,53 @@ namespace Web.EcoConecta.API.Controllers
             if (r == 0) return NotFound();
             return Ok(r);
         }
+
+        [HttpPost("upload"), DisableRequestSizeLimit]
+        public async Task<IActionResult> Upload()
+        {
+            Console.WriteLine("---- DEBUG UPLOAD ----");
+
+            var file = Request.Form.Files.FirstOrDefault();
+
+            if (file == null)
+            {
+                Console.WriteLine("file = NULL");
+                return BadRequest("Archivo inválido (no llegó)");
+            }
+
+            Console.WriteLine($"Nombre: {file.FileName}");
+            Console.WriteLine($"Tamaño: {file.Length}");
+
+            var folder = Path.Combine("wwwroot", "uploads");
+            if (!Directory.Exists(folder))
+                Directory.CreateDirectory(folder);
+
+            var fileName = Guid.NewGuid() + Path.GetExtension(file.FileName);
+            var path = Path.Combine(folder, fileName);
+
+            using (var stream = new FileStream(path, FileMode.Create))
+                await file.CopyToAsync(stream);
+
+            return Ok(new { url = "/uploads/" + fileName });
+        }
+
+        [HttpGet("aprobadas")]
+        public async Task<IActionResult> Aprobadas([FromQuery] string? titulo, [FromQuery] int? categoria, [FromQuery] string? distrito)
+        {
+            var res = await _service.BuscarAprobadasAsync(titulo, categoria, distrito);
+            return Ok(res);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetDetalle(int id)
+        {
+            var detalle = await _service.GetDetalleAsync(id);
+            if (detalle == null) return NotFound();
+
+            return Ok(detalle);
+        }
+
+
+
     }
 }
