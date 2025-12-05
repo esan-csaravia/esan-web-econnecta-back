@@ -43,5 +43,25 @@ namespace Web.EcoConecta.CORE.Core.Services
                 FechaPublicacion = c.FechaPublicacion
             });
         }
+
+        public async Task<int> EditarCampanaAsync(CampanaDTO.CreateCampanaDTO dto)
+        {
+            var c = await _context.CampanasReciclaje.FindAsync(dto.IdCampana);
+            if (c == null) return 0;
+
+            c.Titulo = dto.Titulo;
+            c.Descripcion = dto.Descripcion;
+            c.Imagen = dto.Imagen;
+            c.FechaCampana = dto.FechaCampana;
+
+            return await _repo.Actualizar(c);
+        }
+
+        public async Task<bool> EliminarCampanaAsync(int id)
+        {
+            var r = await _repo.Eliminar(id);
+            return r != 0;
+        }
+
     }
 }

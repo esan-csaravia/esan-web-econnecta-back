@@ -30,5 +30,13 @@ namespace Web.EcoConecta.API.Controllers
             var res = await _service.GetByUsuarioAsync(idUsuario);
             return Ok(res);
         }
+
+        [HttpGet("detallado/usuario/{idUsuario}")]
+        public async Task<IActionResult> GetDetallado(int idUsuario)
+        {
+            var res = await _service.GetDetalladoByUsuarioAsync(idUsuario);
+            return Ok(res);
+        }
+
     }
 }
