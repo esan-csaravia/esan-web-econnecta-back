@@ -26,5 +26,6 @@ namespace Web.EcoConecta.CORE.Core.DTOs
             public string? Imagen { get; set; }
             public DateTime? FechaPublicacion { get; set; }
         }
+
     }
 }
