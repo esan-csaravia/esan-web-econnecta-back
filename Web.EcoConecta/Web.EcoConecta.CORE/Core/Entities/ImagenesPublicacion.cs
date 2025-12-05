@@ -9,7 +9,7 @@ public partial class ImagenesPublicacion
 
     public int IdPublicacion { get; set; }
 
-    public string RutaImagen { get; set; } = null!;
+    public string? RutaImagen { get; set; }
 
     public virtual Publicaciones IdPublicacionNavigation { get; set; } = null!;
 }
