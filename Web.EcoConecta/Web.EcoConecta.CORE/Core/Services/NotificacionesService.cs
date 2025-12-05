@@ -8,23 +8,28 @@ namespace Web.EcoConecta.CORE.Core.Services
     public class NotificacionesService : INotificacionesService
     {
         private readonly INotificacionesRepository _repo;
-        private readonly EcoConectaDbContext _context;
 
-        public NotificacionesService(INotificacionesRepository repo, EcoConectaDbContext context)
+        public NotificacionesService(INotificacionesRepository repo)
         {
             _repo = repo;
-            _context = context;
         }
 
-        public async Task<int> CrearNotificacionAsync(Notificaciones not)
+        public async Task<int> CrearNotificacionAsync(Notificaciones notificacion)
         {
-            // Persistir y (opcional) envío de correo
-            return await _repo.Crear(not);
+            return await _repo.Crear(notificacion);
         }
 
-        public async Task<IEnumerable<Notificaciones>> GetByUsuarioAsync(int idUsuario)
+        // ESTE ES EL ÚNICO QUE SE USARÁ EN EL CONTROLADOR
+        public async Task<IEnumerable<NotificacionDTO>> GetByUsuarioAsync(int idUsuario)
         {
-            return await _repo.GetByUsuario(idUsuario);
+            // OBTIENE LOS DATOS DETALLADOS (JOIN con Publicaciones e Imagenes)
+            return await _repo.GetDetalladoByUsuario(idUsuario);
+        }
+
+        // OPCIONAL: si quieres un endpoint exclusivo para "detallado"
+        public async Task<IEnumerable<NotificacionDTO>> GetDetalladoByUsuarioAsync(int idUsuario)
+        {
+            return await _repo.GetDetalladoByUsuario(idUsuario);
         }
     }
 }

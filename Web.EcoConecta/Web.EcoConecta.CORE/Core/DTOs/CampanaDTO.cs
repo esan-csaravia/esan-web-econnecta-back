@@ -10,6 +10,7 @@ namespace Web.EcoConecta.CORE.Core.DTOs
     {
         public class CreateCampanaDTO
         {
+            public int IdCampana { get; set; }
             public int IdAdmin { get; set; }
             public string Titulo { get; set; }
             public string Descripcion { get; set; }

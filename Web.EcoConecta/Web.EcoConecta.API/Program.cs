@@ -30,8 +30,6 @@ builder.Services.AddScoped<ICategoriasRepository, CategoriasRepository>();
 builder.Services.AddScoped<ICategoriasService, CategoriasService>();
 builder.Services.AddScoped<INotificacionesRepository, NotificacionesRepository>();
 builder.Services.AddScoped<INotificacionesService, NotificacionesService>();
-builder.Services.AddScoped<IBloqueosUsuariosRepository, BloqueosUsuariosRepository>();
-builder.Services.AddScoped<IBloqueosUsuariosService, BloqueosUsuariosService>();
 
 builder.Services.AddControllers();
 
@@ -54,6 +52,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseStaticFiles();
+
 app.UseCors("AllowAll");
 app.UseAuthorization();
 app.MapControllers();
