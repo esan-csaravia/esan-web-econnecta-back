@@ -17,7 +17,7 @@ builder.Services.AddDbContext<EcoConectaDbContext>(options =>
 });
 
 builder.Services.AddTransient<IUsuariosRepository, UsuariosRepository>();
-builder.Services.AddTransient<IUsuariosService,UsuariosService>();
+builder.Services.AddTransient<IUsuariosService, UsuariosService>();
 builder.Services.AddTransient<ITransaccionesRepository, TransaccionesRepository>();
 builder.Services.AddTransient<ITransaccionesService, TransaccionesService>();
 builder.Services.AddTransient<ICalificacionesRepository, CalificacionesRepository>();
@@ -28,8 +28,10 @@ builder.Services.AddTransient<IComentariosRepository, ComentariosRepository>();
 builder.Services.AddTransient<IComentariosService, ComentariosService>();
 builder.Services.AddTransient<ICampanasRepository, CampanasRepository>();
 builder.Services.AddTransient<ICampanasService, CampanasService>();
-builder.Services.AddTransient<INotificacionesRepository, NotificacionesRepository>();
-builder.Services.AddTransient<INotificacionesService, NotificacionesService>();
+builder.Services.AddScoped<ICategoriasRepository, CategoriasRepository>();
+builder.Services.AddScoped<ICategoriasService, CategoriasService>();
+builder.Services.AddScoped<INotificacionesRepository, NotificacionesRepository>();
+builder.Services.AddScoped<INotificacionesService, NotificacionesService>();
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -53,6 +55,8 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+
+app.UseStaticFiles();
 
 app.UseAuthorization();
 

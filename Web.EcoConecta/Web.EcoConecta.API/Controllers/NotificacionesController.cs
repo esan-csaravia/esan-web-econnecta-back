@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using Web.EcoConecta.CORE.Core.Interfaces;
 using Web.EcoConecta.CORE.Core.Entities;
+using Web.EcoConecta.CORE.Core.Interfaces;
+using Web.EcoConecta.CORE.Infraestructure.Data;
 
 namespace Web.EcoConecta.API.Controllers
 {

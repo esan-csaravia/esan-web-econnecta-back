@@ -1,4 +1,3 @@
-using Web.EcoConecta.CORE.Core.DTOs;
 using Web.EcoConecta.CORE.Core.Entities;
 using Web.EcoConecta.CORE.Core.Interfaces;
 using Web.EcoConecta.CORE.Infraestructure.Data;
