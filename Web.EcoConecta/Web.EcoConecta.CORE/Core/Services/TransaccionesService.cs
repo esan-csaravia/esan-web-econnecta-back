@@ -20,8 +20,14 @@ namespace Web.EcoConecta.CORE.Core.Services
         public async Task<int> CrearTransaccionAsync(TransaccionesDTO.CreateTransaccionDTO dto)
         {
             // Validaciones básicas
-            var publicacion = await _context.Publicaciones.FindAsync(dto.IdPublicacion);
+            var publicacion = await _context.Publicaciones
+                .FirstOrDefaultAsync(p => p.IdPublicacion == dto.IdPublicacion);
+
             if (publicacion == null) return 0;
+
+            // Obtener datos del comprador y vendedor
+            var comprador = await _context.Usuarios.FindAsync(dto.IdComprador);
+            var vendedor = await _context.Usuarios.FindAsync(dto.IdVendedor);
 
             var transaccion = new Transacciones
             {
@@ -29,20 +35,36 @@ namespace Web.EcoConecta.CORE.Core.Services
                 IdComprador = dto.IdComprador,
                 IdVendedor = dto.IdVendedor,
                 Tipo = dto.Tipo,
-                // Fecha default DB
+                // Fecha default en DB
             };
 
+            // Guardar transacción
             var id = await _repo.Crear(transaccion);
 
-            // Crear notificación al vendedor
-            var notificacion = new Notificaciones
+            var nombreComprador = comprador?.Nombre ?? "Alguien";
+            var titulo = publicacion.Titulo ?? "tu publicación";
+
+            // 🔔 Notificación para el VENDEDOR (venta)
+            var notVendedor = new Notificaciones
             {
                 IdPublicacion = dto.IdPublicacion,
                 IdUsuario = dto.IdVendedor,
-                Mensaje = "Alguien mostró interés en su publicación",
-                Leido = false
+                Mensaje = $"{nombreComprador} ha comprado tu producto \"{titulo}\".",
+                Leido = false,
+                Fecha = DateTime.Now
             };
-            _context.Notificaciones.Add(notificacion);
+
+            // 🔔 Notificación para el COMPRADOR (compra)
+            var notComprador = new Notificaciones
+            {
+                IdPublicacion = dto.IdPublicacion,
+                IdUsuario = dto.IdComprador,
+                Mensaje = $"Has comprado el producto \"{titulo}\".",
+                Leido = false,
+                Fecha = DateTime.Now
+            };
+
+            _context.Notificaciones.AddRange(notVendedor, notComprador);
             await _context.SaveChangesAsync();
 
             return id;
@@ -104,7 +126,5 @@ namespace Web.EcoConecta.CORE.Core.Services
                 }
             };
         }
-
-
     }
 }

@@ -48,8 +48,13 @@ namespace Web.EcoConecta.CORE.Infraestructure.Repositories
 
         public async Task<IEnumerable<Publicaciones>> GetPendientes()
         {
-            return await _context.Publicaciones.Where(p => p.EstadoPublicacion == "pendiente").Include(p => p.ImagenesPublicacion).ToListAsync();
+            return await _context.Publicaciones
+                .Where(p => p.EstadoPublicacion == "pendiente")
+                .Include(p => p.ImagenesPublicacion)
+                .Include(p => p.IdUsuarioNavigation)   // <-- FIX
+                .ToListAsync();
         }
+
 
         public async Task<IEnumerable<Publicaciones>> Buscar(string? titulo, int? categoria, string? distrito)
         {
@@ -88,6 +93,36 @@ namespace Web.EcoConecta.CORE.Infraestructure.Repositories
                 .Include(p => p.Comentarios).ThenInclude(c => c.IdUsuarioNavigation)
                 .Include(p => p.IdCategoriaNavigation)
                 .FirstOrDefaultAsync(p => p.IdPublicacion == id);
+        }
+
+        public async Task<IEnumerable<Publicaciones>> GetByUsuario(int idUsuario)
+        {
+            return await _context.Publicaciones
+                .Where(p => p.IdUsuario == idUsuario)
+                .Include(p => p.ImagenesPublicacion)
+                .OrderByDescending(p => p.FechaCreacion)
+                .ToListAsync();
+        }
+
+        public async Task EliminarPublicacionCompleta(int idPublicacion)
+        {
+            var pub = await _context.Publicaciones
+                .Include(p => p.ImagenesPublicacion)
+                .Include(p => p.Comentarios)
+                .FirstOrDefaultAsync(p => p.IdPublicacion == idPublicacion);
+
+            if (pub == null) return;
+
+            // Eliminar comentarios
+            _context.Comentarios.RemoveRange(pub.Comentarios);
+
+            // Eliminar imágenes
+            _context.ImagenesPublicacion.RemoveRange(pub.ImagenesPublicacion);
+
+            // Eliminar publicación
+            _context.Publicaciones.Remove(pub);
+
+            await _context.SaveChangesAsync();
         }
 
 

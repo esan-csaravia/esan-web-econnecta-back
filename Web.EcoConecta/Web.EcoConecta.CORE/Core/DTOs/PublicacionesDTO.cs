@@ -1,13 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace Web.EcoConecta.CORE.Core.DTOs
 {
     public class PublicacionesDTO
     {
+        // --------------------------
+        // CREAR PUBLICACIÓN
+        // --------------------------
         public class CreatePublicacionDTO
         {
             public int IdUsuario { get; set; }
@@ -15,11 +12,13 @@ namespace Web.EcoConecta.CORE.Core.DTOs
             public int IdCategoria { get; set; }
             public string Descripcion { get; set; }
             public decimal? Precio { get; set; }
-            // Lista de rutas o nombres de archivos (se puede adaptar a archivos en el API)
             public List<string> Imagenes { get; set; } = new List<string>();
-            public string Tipo { get; set; } // "venta" o "donacion"
+            public string Tipo { get; set; } // venta o donacion
         }
 
+        // --------------------------
+        // LISTA DE PUBLICACIONES
+        // --------------------------
         public class PublicacionListDTO
         {
             public int IdPublicacion { get; set; }
@@ -34,6 +33,8 @@ namespace Web.EcoConecta.CORE.Core.DTOs
             // NUEVOS CAMPOS
             public string NombreUsuario { get; set; }
             public string Distrito { get; set; }
+            public string ImagenPrincipal { get; set; }
+            public DateTime FechaCreacion { get; set; }
         }
 
 
@@ -51,12 +52,13 @@ namespace Web.EcoConecta.CORE.Core.DTOs
             public string Descripcion { get; set; }
             public decimal? Precio { get; set; }
             public string Categoria { get; set; }
+            public int IdCategoria { get; set; }
             public DateTime FechaCreacion { get; set; }
 
             public List<string> Imagenes { get; set; }
-
             public VendedorDTO Vendedor { get; set; }
             public List<ComentarioDTO> Comentarios { get; set; }
+
 
             public class VendedorDTO
             {
@@ -77,5 +79,15 @@ namespace Web.EcoConecta.CORE.Core.DTOs
             }
         }
 
+      
+        public class UpdatePublicacionDTO
+        {
+            public int IdPublicacion { get; set; }
+            public string Titulo { get; set; }
+            public string Descripcion { get; set; }
+            public decimal? Precio { get; set; }
+            public int IdCategoria { get; set; }
+            public List<string> Imagenes { get; set; }
+        }
     }
 }

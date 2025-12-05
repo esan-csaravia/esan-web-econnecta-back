@@ -1,4 +1,5 @@
 ﻿using Web.EcoConecta.CORE.Core.DTOs;
+using Web.EcoConecta.CORE.Core.Entities;
 
 namespace Web.EcoConecta.CORE.Core.Interfaces
 {
@@ -12,8 +13,10 @@ namespace Web.EcoConecta.CORE.Core.Interfaces
         Task<int> EliminarAsync(int id);
         Task<IEnumerable<string>> GetDistritosAsync();
         Task<UsuariosDTO.UserScoreDTO> GetUserScoreAsync(int id);
+        Task<Usuarios> GetUsuarioEntityAsync(int id);
         Task<UsuariosDTO.UserProfileDTO?> GetUsuarioProfileAsync(int id);
         Task<IEnumerable<UsuariosDTO.UsuariosListDTO>> GetUsuariosAsync();
         Task<UsuariosDTO.UsuariosListDTO?> LoginAsync(UsuariosDTO.LoginDTO dto);
+        Task SaveChangesAsync();
     }
 }
