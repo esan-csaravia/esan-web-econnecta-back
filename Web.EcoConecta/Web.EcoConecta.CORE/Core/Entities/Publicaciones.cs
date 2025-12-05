@@ -23,6 +23,8 @@ public partial class Publicaciones
 
     public DateTime? FechaCreacion { get; set; }
 
+    public string? TipoPublicacion { get; set; }
+
     public virtual ICollection<Comentarios> Comentarios { get; set; } = new List<Comentarios>();
 
     public virtual Categorias IdCategoriaNavigation { get; set; } = null!;

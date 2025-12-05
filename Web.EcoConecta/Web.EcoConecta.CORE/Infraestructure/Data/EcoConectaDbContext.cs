@@ -38,7 +38,7 @@ public partial class EcoConectaDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=localhost;Database=EcoConectaDB;Integrated Security=True; TrustServerCertificate=True");
+        => optionsBuilder.UseSqlServer("Server=DESKTOP-JQ7EGQ2;Database=EcoConectaDB;User=sa;Pwd=123456789;TrustServerCertificate=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -169,7 +169,7 @@ public partial class EcoConectaDbContext : DbContext
             entity.Property(e => e.IdImagen).HasColumnName("id_imagen");
             entity.Property(e => e.IdPublicacion).HasColumnName("id_publicacion");
             entity.Property(e => e.RutaImagen)
-                .HasMaxLength(255)
+                .HasMaxLength(500)
                 .HasColumnName("ruta_imagen");
 
             entity.HasOne(d => d.IdPublicacionNavigation).WithMany(p => p.ImagenesPublicacion)
@@ -228,6 +228,10 @@ public partial class EcoConectaDbContext : DbContext
             entity.Property(e => e.Precio)
                 .HasColumnType("decimal(10, 2)")
                 .HasColumnName("precio");
+            entity.Property(e => e.TipoPublicacion)
+                .HasMaxLength(15)
+                .IsUnicode(false)
+                .HasColumnName("tipo_publicacion");
             entity.Property(e => e.Titulo)
                 .HasMaxLength(150)
                 .HasColumnName("titulo");
