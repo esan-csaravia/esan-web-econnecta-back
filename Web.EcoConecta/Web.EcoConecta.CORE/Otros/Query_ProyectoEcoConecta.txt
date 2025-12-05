@@ -172,3 +172,28 @@ CREATE TABLE BloqueosUsuarios (
     FOREIGN KEY (id_admin) REFERENCES Usuarios(id_usuario)
 );
 GO
+
+================================
+
+ALTER TABLE Publicaciones ADD tipo_publicacion VARCHAR(15) CHECK (tipo_publicacion IN ('venta','donacion'));
+ALTER TABLE ImagenesPublicacion ALTER COLUMN ruta_imagen NVARCHAR(500);
+
+================================
+
+--INSERT
+
+INSERT INTO categorias(nombre) values ('Muebles'); 
+INSERT INTO categorias(nombre) values ('Electronicos'); 
+INSERT INTO categorias(nombre) values ('Ropa'); 
+INSERT INTO categorias(nombre) values ('Libros'); 
+INSERT INTO categorias(nombre) values ('Decoracion'); 
+INSERT INTO categorias(nombre) values ('Herramientas'); 
+INSERT INTO categorias(nombre) values ('Deportes'); 
+INSERT INTO categorias(nombre) values ('Juguetes'); 
+
+INSERT INTO usuarios (nombre, apellido, correo,distrito, contrasena, rol)
+VALUES ('Prueba', 'Prueba', 'prueba@gmail.com','Surquillo', '123456789', 'ciudadano');
+INSERT INTO usuarios (nombre, apellido, correo,distrito, contrasena, rol)
+VALUES ('Prueba2', 'Prueba2', 'prueba2@gmail.com','Surco', '12345678', 'ciudadano');
+INSERT INTO usuarios (nombre, apellido, correo,distrito, contrasena, rol)
+VALUES ('Prueba', 'Admin', 'admin@gmail.com','Surco', '123456789', 'administrador');
