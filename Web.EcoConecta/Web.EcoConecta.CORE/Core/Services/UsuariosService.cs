@@ -30,7 +30,9 @@ namespace Web.EcoConecta.CORE.Core.Services
                 IdUsuario = u.IdUsuario,
                 Nombre = u.Nombre,
                 Apellido = u.Apellido,
-                Correo = u.Correo
+                Correo = u.Correo,
+                Rol = u.Rol,
+                Activo = u.Activo ?? false
             });
         }
 
@@ -103,16 +105,25 @@ namespace Web.EcoConecta.CORE.Core.Services
         public async Task<UsuariosDTO.UsuariosListDTO?> LoginAsync(UsuariosDTO.LoginDTO dto)
         {
             var usuario = await _repository.Login(dto.Correo, dto.Contrasena);
-            if (usuario == null) return null;
+
+            if (usuario == null)
+                return null;
+
+            // ❌ Usuario bloqueado
+            if (usuario.Activo == false)
+                throw new Exception("El usuario está bloqueado. Contacte al administrador.");
 
             return new UsuariosDTO.UsuariosListDTO
             {
                 IdUsuario = usuario.IdUsuario,
                 Nombre = usuario.Nombre,
                 Apellido = usuario.Apellido,
-                Correo = usuario.Correo
+                Correo = usuario.Correo,
+                Rol = usuario.Rol,
+                Activo = usuario.Activo ?? false
             };
         }
+
 
         public async Task<UsuariosDTO.UserScoreDTO> GetUserScoreAsync(int id)
         {
@@ -172,6 +183,16 @@ namespace Web.EcoConecta.CORE.Core.Services
             await _repository.Actualizar(user);
 
             return (true, "OK");
+        }
+
+        public async Task<Usuarios> GetUsuarioEntityAsync(int id)
+        {
+            return await _context.Usuarios.FindAsync(id);
+        }
+
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
         }
 
 

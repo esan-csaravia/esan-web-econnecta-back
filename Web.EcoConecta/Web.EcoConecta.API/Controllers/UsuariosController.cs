@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Web.EcoConecta.CORE.Core.Interfaces;
 using Web.EcoConecta.CORE.Core.DTOs;
+using Web.EcoConecta.CORE.Core.Interfaces;
 
 namespace Web.EcoConecta.API.Controllers
 {
@@ -63,15 +63,19 @@ namespace Web.EcoConecta.API.Controllers
             return CreatedAtAction(nameof(GetProfile), new { id = id }, new { Id = id });
         }
 
-        // POST: api/usuarios/login
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] UsuariosDTO.LoginDTO dto)
         {
             if (dto == null) return BadRequest();
+
             var usuario = await _usuariosService.LoginAsync(dto);
-            if (usuario == null) return Unauthorized("Credenciales inválidas.");
+
+            if (usuario == null)
+                return Unauthorized("Credenciales invalidas.");
+
             return Ok(usuario);
         }
+
 
         // PUT: api/usuarios/{id}
         [HttpPut("{id}")]
@@ -132,6 +136,20 @@ namespace Web.EcoConecta.API.Controllers
 
             return Ok(new { mensaje = "Contraseña actualizada correctamente." });
         }
+
+        [HttpPut("toggle/{id}")]
+        public async Task<IActionResult> ToggleEstado(int id)
+        {
+            var user = await _usuariosService.GetUsuarioEntityAsync(id);
+            if (user == null) return NotFound();
+
+            user.Activo = !(user.Activo ?? false);
+
+            await _usuariosService.SaveChangesAsync();
+
+            return Ok(new { estado = user.Activo });
+        }
+
 
 
     }

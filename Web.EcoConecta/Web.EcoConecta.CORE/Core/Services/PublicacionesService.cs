@@ -70,18 +70,31 @@ namespace Web.EcoConecta.CORE.Core.Services
         public async Task<IEnumerable<PublicacionesDTO.PublicacionListDTO>> GetPendientesAsync()
         {
             var pubs = await _repo.GetPendientes();
+
             return pubs.Select(p => new PublicacionesDTO.PublicacionListDTO
             {
                 IdPublicacion = p.IdPublicacion,
                 Titulo = p.Titulo,
                 Descripcion = p.Descripcion,
-                Precio = p.Precio.HasValue ? p.Precio : null,
+                Precio = p.Precio,
                 EstadoPublicacion = p.EstadoPublicacion,
                 IdUsuario = p.IdUsuario,
                 IdCategoria = p.IdCategoria,
-                Imagenes = p.ImagenesPublicacion.Select(i => i.RutaImagen).ToList()
+
+                Imagenes = p.ImagenesPublicacion
+                    .Select(i => i.RutaImagen)
+                    .ToList(),
+
+                // NUEVO: NOMBRE DEL USUARIO
+                NombreUsuario = p.IdUsuarioNavigation != null
+                    ? p.IdUsuarioNavigation.Nombre + " " + p.IdUsuarioNavigation.Apellido
+                    : "(Usuario no encontrado)",
+
+                // Si quieres también el distrito:
+                Distrito = p.IdUsuarioNavigation?.Distrito
             });
         }
+
 
         public async Task<int> UpdateEstadoAsync(PublicacionesDTO.UpdateEstadoDTO dto)
         {
@@ -125,6 +138,7 @@ namespace Web.EcoConecta.CORE.Core.Services
                 Descripcion = p.Descripcion,
                 Precio = p.Precio,
                 Categoria = p.IdCategoriaNavigation?.Nombre,
+                IdCategoria = p.IdCategoria,
                 FechaCreacion = p.FechaCreacion ?? DateTime.MinValue,
                 Imagenes = p.ImagenesPublicacion.Select(i => i.RutaImagen).ToList(),
 
@@ -146,6 +160,78 @@ namespace Web.EcoConecta.CORE.Core.Services
                     Fecha = c.Fecha ?? DateTime.MinValue
                 }).ToList()
             };
+        }
+
+        public async Task<IEnumerable<PublicacionesDTO.PublicacionListDTO>> GetByUsuarioAsync(int idUsuario)
+        {
+            var pubs = await _repo.GetByUsuario(idUsuario);
+
+            return pubs.Select(p => new PublicacionesDTO.PublicacionListDTO
+            {
+                IdPublicacion = p.IdPublicacion,
+                Titulo = p.Titulo,
+                Descripcion = p.Descripcion,
+                Precio = p.Precio,
+                EstadoPublicacion = p.EstadoPublicacion,
+                IdUsuario = p.IdUsuario,
+                IdCategoria = p.IdCategoria,
+
+                FechaCreacion = p.FechaCreacion ?? DateTime.MinValue,
+                // Todas las imágenes
+                Imagenes = p.ImagenesPublicacion.Select(i => i.RutaImagen).ToList(),
+
+                // Nueva: primera imagen
+                ImagenPrincipal = p.ImagenesPublicacion
+                    .Select(i => i.RutaImagen)
+                    .FirstOrDefault() ?? "/uploads/default.jpg"
+            });
+        }
+
+        public async Task<int> EditarPublicacionAsync(PublicacionesDTO.UpdatePublicacionDTO dto)
+        {
+            var pub = await _repo.GetById(dto.IdPublicacion);
+            if (pub == null) return 0;
+
+            pub.Titulo = dto.Titulo;
+            pub.Descripcion = dto.Descripcion;
+            pub.Precio = dto.Precio;
+            pub.IdCategoria = dto.IdCategoria;
+
+            // Eliminar imágenes anteriores
+            var imgs = _context.ImagenesPublicacion.Where(i => i.IdPublicacion == pub.IdPublicacion);
+            _context.ImagenesPublicacion.RemoveRange(imgs);
+
+            // Guardar nuevas imágenes
+            foreach (var img in dto.Imagenes)
+            {
+                _context.ImagenesPublicacion.Add(new ImagenesPublicacion
+                {
+                    IdPublicacion = pub.IdPublicacion,
+                    RutaImagen = img
+                });
+            }
+
+            await _context.SaveChangesAsync();
+            return pub.IdPublicacion;
+        }
+
+        public async Task<bool> EliminarPublicacionAsync(int idPublicacion)
+        {
+            var pub = await _repo.GetById(idPublicacion);
+            if (pub == null) return false;
+
+            // 1. Eliminar IMÁGENES físicas
+            foreach (var img in pub.ImagenesPublicacion)
+            {
+                var path = Path.Combine("wwwroot", img.RutaImagen.TrimStart('/'));
+                if (File.Exists(path))
+                    File.Delete(path);
+            }
+
+            // 2. Eliminar registros
+            await _repo.EliminarPublicacionCompleta(idPublicacion);
+
+            return true;
         }
 
 

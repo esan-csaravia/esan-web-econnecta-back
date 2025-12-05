@@ -90,6 +90,29 @@ namespace Web.EcoConecta.API.Controllers
             return Ok(detalle);
         }
 
+        [HttpGet("usuario/{idUsuario}")]
+        public async Task<IActionResult> GetByUsuario(int idUsuario)
+        {
+            var res = await _service.GetByUsuarioAsync(idUsuario);
+            return Ok(res);
+        }
+
+        [HttpPut("editar")]
+        public async Task<IActionResult> Editar([FromBody] PublicacionesDTO.UpdatePublicacionDTO dto)
+        {
+            var result = await _service.EditarPublicacionAsync(dto);
+            if (result == 0) return BadRequest();
+            return Ok(result);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Eliminar(int id)
+        {
+            var ok = await _service.EliminarPublicacionAsync(id);
+            if (!ok) return NotFound();
+
+            return Ok(new { mensaje = "Publicación eliminada correctamente" });
+        }
 
 
     }
