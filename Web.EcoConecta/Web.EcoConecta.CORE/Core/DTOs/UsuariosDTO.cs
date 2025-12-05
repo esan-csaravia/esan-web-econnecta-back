@@ -63,6 +63,7 @@ namespace Web.EcoConecta.CORE.Core.DTOs
             public int TotalCalificaciones { get; set; }
             public int TotalVentas { get; set; }
             public int TotalCompras { get; set; }
+            public DateTime FechaRegistro { get; set; }
         }
 
         public class UserScoreDTO
@@ -77,5 +78,12 @@ namespace Web.EcoConecta.CORE.Core.DTOs
             public int IdUsuario { get; set; }
             public string Motivo { get; set; }
         }
+
+        public class CambiarPasswordDTO
+        {
+            public string PasswordActual { get; set; }
+            public string NuevaPassword { get; set; }
+        }
+
     }
 }

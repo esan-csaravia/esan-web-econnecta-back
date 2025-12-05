@@ -54,5 +54,41 @@ namespace Web.EcoConecta.CORE.Core.Services
 
             return id;
         }
+
+        public async Task<object?> GetCalificacionesVendedorAsync(int idVendedor)
+        {
+            var calificaciones = await _repo.GetByVendedor(idVendedor);
+
+            if (calificaciones == null || !calificaciones.Any())
+                return new
+                {
+                    Promedio = 0.0,
+                    Total = 0
+                };
+
+            return new
+            {
+                Promedio = calificaciones.Average(c => c.Puntuacion),
+                Total = calificaciones.Count()
+            };
+        }
+
+        public async Task<IEnumerable<CalificacionesDTO.CalificacionListDTO>> GetListaCalificacionesAsync(int idVendedor)
+        {
+            var calificaciones = await _repo.GetListaByVendedor(idVendedor);
+
+            return calificaciones.Select(c => new CalificacionesDTO.CalificacionListDTO
+            {
+                IdCalificacion = c.IdCalificacion,
+                IdTransaccion = c.IdTransaccion,
+                IdCalificador = c.IdCalificador,
+                IdVendedor = c.IdVendedor,
+                Puntuacion = c.Puntuacion,
+                Comentario = c.Comentario,
+                Fecha = c.Fecha
+            });
+        }
+
+
     }
 }

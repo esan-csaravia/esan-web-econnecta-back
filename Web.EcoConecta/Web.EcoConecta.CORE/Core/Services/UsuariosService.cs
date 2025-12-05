@@ -61,8 +61,10 @@ namespace Web.EcoConecta.CORE.Core.Services
                 PuntuacionPromedio = Math.Round(promedio, 2),
                 TotalCalificaciones = totalCalificaciones,
                 TotalVentas = totalVentas,
-                TotalCompras = totalCompras
+                TotalCompras = totalCompras,
+                FechaRegistro = usuario.FechaRegistro ?? DateTime.Now // <-- AGREGADO
             };
+
         }
 
         public async Task<int> CrearAsync(UsuariosDTO.CreateUsuarioDTO dto)
@@ -129,5 +131,49 @@ namespace Web.EcoConecta.CORE.Core.Services
                 CantidadCalificaciones = cantidad
             };
         }
+
+        public async Task<IEnumerable<string>> GetDistritosAsync()
+        {
+            return await _repository
+                .GetAll()
+                .Where(u => !string.IsNullOrWhiteSpace(u.Distrito))
+                .Select(u => u.Distrito)
+                .Distinct()
+                .ToListAsync();
+        }
+
+        public async Task<int> CountVendidosAsync(int idUsuario)
+        {
+            return await _context.Transacciones
+                .CountAsync(t => t.IdVendedor == idUsuario && t.Tipo == "compra");
+        }
+
+        public async Task<int> CountCompradosAsync(int idUsuario)
+        {
+            return await _context.Transacciones
+                .CountAsync(t => t.IdComprador == idUsuario);
+        }
+
+        public async Task<(bool Exito, string Mensaje)> CambiarPasswordAsync(int id, UsuariosDTO.CambiarPasswordDTO dto)
+        {
+            var user = await _repository.GetUsuarioById(id);
+            if (user == null)
+                return (false, "Usuario no encontrado.");
+
+            // Validar contraseña actual
+            if (user.Contrasena != dto.PasswordActual)
+                return (false, "La contraseña actual es incorrecta.");
+
+            if (dto.NuevaPassword.Length < 8)
+                return (false, "La nueva contraseña debe tener al menos 8 caracteres.");
+
+            user.Contrasena = dto.NuevaPassword;
+
+            await _repository.Actualizar(user);
+
+            return (true, "OK");
+        }
+
+
     }
 }

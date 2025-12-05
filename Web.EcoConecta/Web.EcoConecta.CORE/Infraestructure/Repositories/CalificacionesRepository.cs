@@ -29,5 +29,14 @@ namespace Web.EcoConecta.CORE.Infraestructure.Repositories
         {
             return await _context.Calificaciones.Where(c => c.IdVendedor == idVendedor).ToListAsync();
         }
+
+        public async Task<IEnumerable<Calificaciones>> GetListaByVendedor(int idVendedor)
+        {
+            return await _context.Calificaciones
+                .Where(c => c.IdVendedor == idVendedor)
+                .OrderByDescending(c => c.Fecha)
+                .ToListAsync();
+        }
+
     }
 }

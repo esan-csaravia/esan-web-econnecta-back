@@ -7,6 +7,7 @@ namespace Web.EcoConecta.CORE.Core.Interfaces
         Task<int> Actualizar(Usuarios usuarios);
         Task<int> Crear(Usuarios usuarios);
         Task<int> Eliminar(int id);
+        IQueryable<Usuarios> GetAll();
         Task<Usuarios> GetUsuarioById(int id);
         Task<IEnumerable<Usuarios>> GetUsuarios();
         Task<Usuarios> Login(string correo, string contrasena);

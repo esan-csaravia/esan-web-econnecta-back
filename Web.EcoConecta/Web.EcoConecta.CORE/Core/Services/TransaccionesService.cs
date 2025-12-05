@@ -1,8 +1,8 @@
-using Web.EcoConecta.CORE.Core.DTOs;
-using Web.EcoConecta.CORE.Core.Entities;
+Ôªøusing Web.EcoConecta.CORE.Core.DTOs;
 using Web.EcoConecta.CORE.Core.Interfaces;
 using Web.EcoConecta.CORE.Infraestructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Web.EcoConecta.CORE.Core.Entities;
 
 namespace Web.EcoConecta.CORE.Core.Services
 {
@@ -19,7 +19,7 @@ namespace Web.EcoConecta.CORE.Core.Services
 
         public async Task<int> CrearTransaccionAsync(TransaccionesDTO.CreateTransaccionDTO dto)
         {
-            // Validaciones b·sicas
+            // Validaciones b√°sicas
             var publicacion = await _context.Publicaciones.FindAsync(dto.IdPublicacion);
             if (publicacion == null) return 0;
 
@@ -34,12 +34,12 @@ namespace Web.EcoConecta.CORE.Core.Services
 
             var id = await _repo.Crear(transaccion);
 
-            // Crear notificaciÛn al vendedor
+            // Crear notificaci√≥n al vendedor
             var notificacion = new Notificaciones
             {
                 IdPublicacion = dto.IdPublicacion,
                 IdUsuario = dto.IdVendedor,
-                Mensaje = "Alguien mostrÛ interÈs en su publicaciÛn",
+                Mensaje = "Alguien mostr√≥ inter√©s en su publicaci√≥n",
                 Leido = false
             };
             _context.Notificaciones.Add(notificacion);
@@ -48,18 +48,63 @@ namespace Web.EcoConecta.CORE.Core.Services
             return id;
         }
 
-        public async Task<IEnumerable<TransaccionesDTO.TransaccionListDTO>> GetHistorialAsync(int idUsuario)
+        public async Task<IEnumerable<TransaccionesDTO.HistorialDTO>> GetHistorialAsync(int idUsuario)
         {
-            var trans = await _repo.GetByUsuario(idUsuario);
-            return trans.Select(t => new TransaccionesDTO.TransaccionListDTO
+            var transacciones = await _context.Transacciones
+                .Where(t => t.IdComprador == idUsuario || t.IdVendedor == idUsuario)
+                .Include(t => t.IdPublicacionNavigation)
+                .Select(t => new TransaccionesDTO.HistorialDTO
+                {
+                    IdTransaccion = t.IdTransaccion,
+
+                    // Si yo soy el comprador ‚Üí es compra
+                    // Si yo soy el vendedor ‚Üí es venta
+                    Tipo = t.IdComprador == idUsuario ? "compra" : "venta",
+
+                    Fecha = t.Fecha ?? DateTime.Now,
+
+                    Titulo = t.IdPublicacionNavigation.Titulo,
+                    Precio = t.IdPublicacionNavigation.Precio ?? 0
+                })
+                .OrderByDescending(t => t.Fecha)
+                .ToListAsync();
+
+            return transacciones;
+        }
+
+        public async Task<Transacciones?> GetByIdAsync(int id)
+        {
+            return await _repo.GetByIdDetalle(id);
+        }
+
+        public async Task<TransaccionDetalleDTO?> GetDetalleCompraAsync(int id)
+        {
+            var t = await _repo.GetByIdDetalle(id);
+            if (t == null) return null;
+
+            return new TransaccionDetalleDTO
             {
                 IdTransaccion = t.IdTransaccion,
-                IdPublicacion = t.IdPublicacion,
-                IdComprador = t.IdComprador,
-                IdVendedor = t.IdVendedor,
-                Tipo = t.Tipo,
-                Fecha = t.Fecha
-            });
+                Fecha = t.Fecha,
+
+                Publicacion = new PublicacionDetalleDTO
+                {
+                    Titulo = t.IdPublicacionNavigation.Titulo,
+                    Precio = t.IdPublicacionNavigation.Precio ?? 0,
+                    Imagenes = t.IdPublicacionNavigation.ImagenesPublicacion
+                        .Select(i => i.RutaImagen)
+                        .ToList()
+                },
+
+                Vendedor = new UsuarioSimpleDTO
+                {
+                    IdUsuario = t.IdVendedorNavigation.IdUsuario,
+                    Nombre = t.IdVendedorNavigation.Nombre,
+                    Apellido = t.IdVendedorNavigation.Apellido
+                }
+            };
         }
+
+
     }
 }

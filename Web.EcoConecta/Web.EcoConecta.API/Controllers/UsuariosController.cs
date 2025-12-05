@@ -91,5 +91,48 @@ namespace Web.EcoConecta.API.Controllers
             if (res == 0) return NotFound();
             return Ok(new { Id = res });
         }
+
+        [HttpGet("distritos")]
+        public async Task<IActionResult> GetDistritos()
+        {
+            var distritos = await _usuariosService.GetDistritosAsync();
+            return Ok(distritos);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var user = await _usuariosService.GetUsuarioProfileAsync(id);
+            if (user == null) return NotFound();
+            return Ok(user);
+        }
+
+        [HttpGet("{id}/estadisticas")]
+        public async Task<IActionResult> GetEstadisticas(int id)
+        {
+            var vendidos = await _usuariosService.CountVendidosAsync(id);
+            var comprados = await _usuariosService.CountCompradosAsync(id);
+
+            return Ok(new
+            {
+                vendidos,
+                comprados
+            });
+        }
+
+        [HttpPut("{id}/cambiar-password")]
+        public async Task<IActionResult> CambiarPassword(int id, [FromBody] UsuariosDTO.CambiarPasswordDTO dto)
+        {
+            if (dto == null) return BadRequest("Datos inválidos.");
+
+            var resultado = await _usuariosService.CambiarPasswordAsync(id, dto);
+
+            if (!resultado.Exito)
+                return BadRequest(resultado.Mensaje);
+
+            return Ok(new { mensaje = "Contraseña actualizada correctamente." });
+        }
+
+
     }
 }
